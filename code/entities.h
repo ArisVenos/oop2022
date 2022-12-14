@@ -1,26 +1,5 @@
 using namespace std;
 
-class Entity{
-    private:
-        unsigned short int health;
-        unsigned short int attack;
-        unsigned short int defence;
-        unsigned short int x;
-        unsigned short int y;
-
-    public:
-        unsigned short int get_health() const { return health; }
-        unsigned short int get_attack() const { return attack; }
-        unsigned short int get_defence() const { return defence;}
-        unsigned short int get_x() const { return x;}
-        unsigned short int get_y() const { return y;};
-
-        void InitializeAbilities();
-        void UpdatePosition(int dx, int dy);
-
-};
-
-
 class Map{
     private:
         //unsigned short int X, Y;
@@ -40,19 +19,43 @@ class Map{
 
 };
 
+class Entity{
+    private:
+        unsigned short int health;
+        unsigned short int attack;
+        unsigned short int defence;
+        unsigned short int x;
+        unsigned short int y;
+        const char SYMBOL;
+        void SpawnInPosition(Map& map);
+    public:
+        Entity() {printf("abc")};
+        unsigned short int get_health() const { return health; }
+        unsigned short int get_attack() const { return attack; }
+        unsigned short int get_defence() const { return defence;}
+        unsigned short int get_x() const { return x;}
+        unsigned short int get_y() const { return y;};
+        char get_symbol() const { return SYMBOL;};
+        void InitializeAbilities();
+        void UpdatePosition(int dx, int dy);
+        void SpawnInMap(Map& map);
+
+};
 
 
-class Werewolf : public Entity{
+
+class Werewolf:public Entity{
     //public:
         //Werewolf() : Animal() {}
 
 
 };
 
-class Vampire : public Entity{
+class Vampire:public Entity{
 
 };
 
-class Avatar : public Entity{
-        
+class Avatar:public Entity{
+    public:
+        Avatar() {Entity();};
 };

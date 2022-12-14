@@ -5,16 +5,18 @@
 
 //vector<vector<char>> world(10, vector<char>(10));
 // Define the symbols used to represent different elements in the world
-const char TERRAIN_SYMBOL = 'T';
+const char TERRAIN_SYMBOL = ' ';
 const char WATER_SYMBOL = 'W';
 const char TREE_SYMBOL = 'X';
+const char EDGE_SYMBOL = '=';
 
 // Define the probability of each element appearing in the world
-const float TERRAIN_PROBABILITY = 0.6;
-const float WATER_PROBABILITY = 0.2;
-const float TREE_PROBABILITY = 0.2;
+const float TERRAIN_PROBABILITY = 0.8;
+const float WATER_PROBABILITY = 0.1;
+const float TREE_PROBABILITY = 0.1;
 
 using namespace std;
+
 
 void Entity::InitializeAbilities(){
     
@@ -79,6 +81,19 @@ void Map::GenerateMap(Map& map){
       }
     }
   }
+
+  for(int i = 0; i < X; i++) {
+    map.world[i][0] = EDGE_SYMBOL;
+  }
+  for(int i = 0; i < X; i++) {
+    map.world[i][X-1] = EDGE_SYMBOL;
+  }
+  for(int i = 0; i < X; i++) {
+    map.world[0][i] = EDGE_SYMBOL;
+  }
+  for(int i = 0; i < X; i++) {
+    map.world[Y-1][i] = EDGE_SYMBOL;
+  }
 }
 
 void Map::PrintMap(Map& map) const{
@@ -93,3 +108,20 @@ void Map::PrintMap(Map& map) const{
 
 }
 
+void Entity::SpawnInPosition(Map& map) {
+  bool flag = true;
+
+  while(flag) {
+    x = rand() % map.world.size();
+    y = rand() % map.world[0].size();
+
+    if(map.world[x][y] == TERRAIN_SYMBOL) {
+      map.world[x][y] = get_symbol();
+      flag = false;
+    }
+  }
+}
+
+void Entity::SpawnInMap(Map& map) {
+  SpawnInPosition(map);
+}

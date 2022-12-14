@@ -50,8 +50,16 @@ int main(){
   //cout <<  "Enter dimensions" <<endl;
   //cin >> X >> Y;
 
+  Werewolf a;
+  Avatar ent1,ent2,ent3;
   Map map;
   map.MapGenerator(map);
+  map.MapPrinter(map);
+
+  ent1.SpawnInMap(map);
+  ent2.SpawnInMap(map);
+  ent3.SpawnInMap(map);
+
   map.MapPrinter(map);
 
   return 0;
