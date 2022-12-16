@@ -1,13 +1,8 @@
 using namespace std;
 
+
 class Map{
     private:
-        //unsigned short int X, Y;
-        //Map(int width, int height) : X(width), Y(height) {}
-        
-        //unsigned short int get_X() const { return X; }
-        //unsigned short int get_Y() const { return Y; };
-        //vector<vector<char>> world;
         void GenerateMap(Map& map);
         void PrintMap(Map& map) const;
     public:
@@ -16,7 +11,6 @@ class Map{
         vector<vector<char>> world;
         void MapGenerator(Map& map);
         void MapPrinter(Map& map);
-
 };
 
 class Entity{
@@ -26,18 +20,19 @@ class Entity{
         unsigned short int defence;
         unsigned short int x;
         unsigned short int y;
-        const char SYMBOL;
         void SpawnInPosition(Map& map);
+        char SYMBOL;
     public:
-        Entity() {printf("abc")};
+        Entity() {};
         unsigned short int get_health() const { return health; }
         unsigned short int get_attack() const { return attack; }
         unsigned short int get_defence() const { return defence;}
         unsigned short int get_x() const { return x;}
         unsigned short int get_y() const { return y;};
+        void symbol_set(char s) {SYMBOL = s;};
         char get_symbol() const { return SYMBOL;};
         void InitializeAbilities();
-        void UpdatePosition(int dx, int dy);
+        void UpdatePosition(Map& map,int pos);
         void SpawnInMap(Map& map);
 
 };
@@ -45,17 +40,39 @@ class Entity{
 
 
 class Werewolf:public Entity{
-    //public:
-        //Werewolf() : Animal() {}
+    private:
+        char S = 'R';
+    public:
+        Werewolf() {symbol_set(S);};
 
 
 };
 
 class Vampire:public Entity{
-
+    private:
+        char S = 'V';
+    public:
+        Vampire() {symbol_set(S);};
 };
 
 class Avatar:public Entity{
+    private:
+        char S = 'A';
     public:
-        Avatar() {Entity();};
+        Avatar() {symbol_set(S);};
+        void AvatarMove(Map& map);
+
+
+        
 };
+
+class Game {
+    private:
+        vector<Vampire> vamps;
+        vector<Werewolf> weres;
+        Avatar av;
+    public:
+        void GameGenerator(Map& map,int size);
+        void GameUpdater(Map& map);
+};
+

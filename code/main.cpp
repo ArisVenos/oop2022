@@ -46,21 +46,16 @@ void Key(){
 
 int main(){
   srand(time(0));
-  //unsigned short int X, Y;
-  //cout <<  "Enter dimensions" <<endl;
-  //cin >> X >> Y;
 
-  Werewolf a;
-  Avatar ent1,ent2,ent3;
   Map map;
-  map.MapGenerator(map);
-  map.MapPrinter(map);
+  Game game;
+  
+  game.GameGenerator(map,5);
+  
+  while(true) {
+    game.GameUpdater(map);
+  }
 
-  ent1.SpawnInMap(map);
-  ent2.SpawnInMap(map);
-  ent3.SpawnInMap(map);
-
-  map.MapPrinter(map);
 
   return 0;
   

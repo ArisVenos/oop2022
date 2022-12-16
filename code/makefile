@@ -23,7 +23,7 @@ OUTF = oop
 # Set all the Source files
 SRCS = main.cpp entities.cpp
 # Set all the Header files
-HDRS = entities.h
+HDRS = entities.h map.h
 # Set documentation files
 #DOCS = Readme.pdf
 # All the corresponding object files will be all sources with .o
