@@ -18,6 +18,7 @@ class Entity{
         unsigned short int health;
         unsigned short int attack;
         unsigned short int defence;
+        unsigned short int healing;
         unsigned short int x;
         unsigned short int y;
         void SpawnInPosition(Map& map);

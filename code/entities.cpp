@@ -6,23 +6,24 @@
 //vector<vector<char>> world(10, vector<char>(10));
 // Define the symbols used to represent different elements in the world
 const char TERRAIN_SYMBOL = ' ';
-const char WATER_SYMBOL = 'W';
-const char TREE_SYMBOL = 'X';
+const char WATER_SYMBOL = 'L';
+const char TREE_SYMBOL = 'T';
 const char EDGE_SYMBOL = '=';
 
 // Define the probability of each element appearing in the world
-const float TERRAIN_PROBABILITY = 1;
-const float WATER_PROBABILITY = 0;
-const float TREE_PROBABILITY = 0;
+const float TERRAIN_PROBABILITY = 0.9;
+const float WATER_PROBABILITY = 0.05;
+const float TREE_PROBABILITY = 0.05;
 
 using namespace std;
 
 
 void Entity::InitializeAbilities(){
     
-    health = rand() % 3;
+    healing = rand() % 3;
     attack = rand() % 3 + 1;
     defence = rand() % 2 + 1;
+    health = 5;
 }
 
 void Map::MapGenerator(Map& map){
@@ -88,7 +89,7 @@ void Map::PrintMap(Map& map) const{
   {
     for (int j = 0; j < map.world[i].size(); j++)
     {
-      cout << "|" << map.world[i][j] << "|";
+      cout << "[" << map.world[i][j] << "]";
     }
     cout << endl;
   }
@@ -97,7 +98,6 @@ void Map::PrintMap(Map& map) const{
 void Entity::UpdatePosition(Map& map,int pos) {
   if(pos == 0) {
     if(map.world[x-1][y] == TERRAIN_SYMBOL){
-      cout << "moving up" << endl;
       map.world[x-1][y] = get_symbol();
       map.world[x][y] = TERRAIN_SYMBOL;
       this->x = this->x - 1;
