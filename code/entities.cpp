@@ -144,6 +144,24 @@ void Entity::SpawnInMap(Map& map) {
   SpawnInPosition(map);
 }
 
+int Entity::CheckInMap(Map& map) {
+  if(map.world[x][y-1] == 'W'){
+    return 1;
+  }
+  else if(map.world[x][y+1] == 'W'){
+    return 2;
+  }
+  else if(map.world[x-1][y] == 'W'){
+    return 3;
+  }
+  else if(map.world[x+1][y] == 'W'){
+    return 4;
+  }
+  else {
+    return 0;
+  }
+}
+
 void Avatar::AvatarMove(Map& map) {
   char input;
   
@@ -165,7 +183,6 @@ void Avatar::AvatarMove(Map& map) {
   }
   else {
     cout << "wrong input,use w a s d\n"<< endl;
-    this->UpdatePosition(map,rand()%4);
     AvatarMove(map);
   }
 }
@@ -175,14 +192,6 @@ void Game::GameGenerator(Map& map, int size) {
 
   this->vamps.resize(size);
   this->weres.resize(size);
-
-  this->av = Avatar();
-
-  for(int i; i < size; i++) {
-    this->vamps[i] = Vampire();
-
-    this->weres[i] = Werewolf();
-  }
 
   this->av.SpawnInMap(map);
 
@@ -196,10 +205,53 @@ void Game::GameGenerator(Map& map, int size) {
 void Game::GameUpdater(Map& map) {
   map.MapPrinter(map);
   av.AvatarMove(map);
+  
+  for(int i=0; i < this->vamps.size(); i++) {
+    int flag;
+    flag = this->vamps[i].CheckInMap(map);
+    if(flag == 1) {
+      this->GameKiller(map,this->vamps[i].get_x(),this->vamps[i].get_y()-1);
+    }
+    else if(flag == 2) {
+      this->GameKiller(map,this->vamps[i].get_x(),this->vamps[i].get_y()+1);
+    }
+    else if(flag == 3) {
+      this->GameKiller(map,this->vamps[i].get_x()-1,this->vamps[i].get_y());
+    }
+    else if(flag == 4) {
+      this->GameKiller(map,this->vamps[i].get_x()+1,this->vamps[i].get_y());
+    }
+    else {
+      continue;
+    }
+
+  }
 
   for(int i=0; i < this->vamps.size(); i++) {
     this->vamps[i].UpdatePosition(map,rand()%4);
+  }
 
+  for(int i=0; i < this->weres.size(); i++) {
     this->weres[i].UpdatePosition(map,rand()%4);
+  }
+
+
+}
+
+void Game::GameKiller(Map& map, int a, int b){
+  for(int i=0; i<vamps.size(); i++){
+    if(this->vamps[i].get_x() == a && this->vamps[i].get_y() == b){
+      map.world[a][b] = TERRAIN_SYMBOL;
+      this->vamps.erase(this->vamps.begin());
+    }
+  }
+
+  for(int i=0; i < this->weres.size(); i++){
+    if(this->weres[i].get_x() == a){
+      if(this->weres[i].get_y() == b) {
+        map.world[a][b] = TERRAIN_SYMBOL;
+        this->weres.erase(this->weres.begin()+i);
+      }
+    }
   }
 }

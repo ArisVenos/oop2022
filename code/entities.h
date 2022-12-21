@@ -1,6 +1,5 @@
 using namespace std;
 
-
 class Map{
     private:
         void GenerateMap(Map& map);
@@ -15,10 +14,10 @@ class Map{
 
 class Entity{
     private:
+        unsigned short int healing;
         unsigned short int health;
         unsigned short int attack;
         unsigned short int defence;
-        unsigned short int healing;
         unsigned short int x;
         unsigned short int y;
         void SpawnInPosition(Map& map);
@@ -35,6 +34,7 @@ class Entity{
         void InitializeAbilities();
         void UpdatePosition(Map& map,int pos);
         void SpawnInMap(Map& map);
+        int CheckInMap(Map& map);
 
 };
 
@@ -42,10 +42,10 @@ class Entity{
 
 class Werewolf:public Entity{
     private:
-        char S = 'R';
+        char S = 'W';
     public:
         Werewolf() {symbol_set(S);};
-
+        ~Werewolf() {cout <<"were killed"<<endl;};
 
 };
 
@@ -54,6 +54,7 @@ class Vampire:public Entity{
         char S = 'V';
     public:
         Vampire() {symbol_set(S);};
+        ~Vampire() {cout <<"var killed"<<endl;};
 };
 
 class Avatar:public Entity{
@@ -73,7 +74,7 @@ class Game {
         vector<Werewolf> weres;
         Avatar av;
     public:
+        void GameKiller(Map& map, int a, int b);
         void GameGenerator(Map& map,int size);
         void GameUpdater(Map& map);
 };
-
