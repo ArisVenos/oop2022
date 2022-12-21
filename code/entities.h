@@ -1,5 +1,7 @@
 using namespace std;
 
+extern bool runner;
+
 class Map{
     private:
         void GenerateMap(Map& map);
@@ -24,17 +26,18 @@ class Entity{
         char SYMBOL;
     public:
         Entity() {};
-        unsigned short int get_health() const { return health; }
-        unsigned short int get_attack() const { return attack; }
-        unsigned short int get_defence() const { return defence;}
-        unsigned short int get_x() const { return x;}
+        unsigned short int get_health() const { return health; };
+        unsigned short int get_attack() const { return attack; };
+        unsigned short int get_defence() const { return defence;};
+        unsigned short int get_x() const { return x;};
         unsigned short int get_y() const { return y;};
+        void get_attacked(int dmg) { health = health - dmg;};
         void symbol_set(char s) {SYMBOL = s;};
         char get_symbol() const { return SYMBOL;};
         void InitializeAbilities();
         void UpdatePosition(Map& map,int pos);
         void SpawnInMap(Map& map);
-        int CheckInMap(Map& map);
+        virtual int CheckInMap(Map& map);
 
 };
 
@@ -45,7 +48,8 @@ class Werewolf:public Entity{
         char S = 'W';
     public:
         Werewolf() {symbol_set(S);};
-        ~Werewolf() {cout <<"were killed"<<endl;};
+        ~Werewolf() {cout <<"Werewolf killed"<<endl;};
+        int CheckInMap(Map& map);
 
 };
 
@@ -54,7 +58,7 @@ class Vampire:public Entity{
         char S = 'V';
     public:
         Vampire() {symbol_set(S);};
-        ~Vampire() {cout <<"var killed"<<endl;};
+        ~Vampire() {cout <<"Vampire killed"<<endl;};
 };
 
 class Avatar:public Entity{
@@ -62,7 +66,7 @@ class Avatar:public Entity{
         char S = 'A';
     public:
         Avatar() {symbol_set(S);};
-        void AvatarMove(Map& map);
+        char AvatarMove(Map& map);
 
 
         
@@ -73,8 +77,11 @@ class Game {
         vector<Vampire> vamps;
         vector<Werewolf> weres;
         Avatar av;
+        int counter;
+        bool time;
     public:
         void GameKiller(Map& map, int a, int b);
-        void GameGenerator(Map& map,int size);
+        void GameGenerator(Map& map);
         void GameUpdater(Map& map);
+        void GameEnder(Map& map);
 };

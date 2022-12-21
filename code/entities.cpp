@@ -23,7 +23,7 @@ void Entity::InitializeAbilities(){
     healing = rand() % 3;
     attack = rand() % 3 + 1;
     defence = rand() % 2 + 1;
-    health = 5;
+    health = 3;
 }
 
 void Map::MapGenerator(Map& map){
@@ -162,7 +162,25 @@ int Entity::CheckInMap(Map& map) {
   }
 }
 
-void Avatar::AvatarMove(Map& map) {
+int Werewolf::CheckInMap(Map& map) {
+  if(map.world[this->get_x()][this->get_y()-1] == 'V'){
+    return 1;
+  }
+  else if(map.world[this->get_x()][get_y()+1] == 'V'){
+    return 2;
+  }
+  else if(map.world[this->get_x()-1][get_y()] == 'V'){
+    return 3;
+  }
+  else if(map.world[this->get_x()+1][get_y()] == 'V'){
+    return 4;
+  }
+  else {
+    return 0;
+  }
+}
+
+char Avatar::AvatarMove(Map& map) {
   char input;
   
   cout << "enter direction: ";
@@ -171,24 +189,40 @@ void Avatar::AvatarMove(Map& map) {
 
   if(input == 'w'){
     this->UpdatePosition(map,0);
+    return 't';
   }
   else if(input == 's') {
     this->UpdatePosition(map,1);
+    return 't';
   }
   else if(input == 'a') {
     this->UpdatePosition(map,2);
+    return 't';
   }
   else if(input == 'd') {
     this->UpdatePosition(map,3);
+    return 't';
+  }
+  else if(input == 'p') {
+    return 'f';
+  }
+  else if(input == 'q') {
+    return 'q';
   }
   else {
     cout << "wrong input,use w a s d\n"<< endl;
-    AvatarMove(map);
+    return AvatarMove(map);
   }
 }
 
-void Game::GameGenerator(Map& map, int size) {
+void Game::GameGenerator(Map& map) {
+  int size;
+  
   map.MapGenerator(map);
+
+  size = (map.world.size()*map.world.size()) / 15;
+
+  cout << "Size is: " << size << endl;
 
   this->vamps.resize(size);
   this->weres.resize(size);
@@ -200,12 +234,55 @@ void Game::GameGenerator(Map& map, int size) {
 
     this->weres[i].SpawnInMap(map);
   }
+  time = false;
+
+  for(int i=0; i < this->vamps.size(); i++) {
+    this->vamps[i].InitializeAbilities();
+
+    this->weres[i].InitializeAbilities();
+  }
 }
 
 void Game::GameUpdater(Map& map) {
-  map.MapPrinter(map);
-  av.AvatarMove(map);
+  char pause;
+  char junk;
+
+  this->counter++;
+  if(counter == 5) {
+    if(this->time == false){
+      this->time = true;
+      this->counter = 0;
+    }
+    else {
+      this->time = false;
+      this->counter = 0;
+    }
+  }
   
+  if(this->time == false){
+    cout << "------------------Day------------------" << endl;
+  }
+  else {
+    cout << "------------------Night------------------" << endl;
+  }
+  map.MapPrinter(map);
+  pause = av.AvatarMove(map);
+
+  if(pause == 'f') {
+    cout << "------------------Paused the game------------------" << endl;
+    cout << "Vampires left: " << this->vamps.size() << endl;
+    cout << "Werewolves left: " << this->weres.size() << endl;
+    cout << "Press anything to continue" << endl;
+    cin >> junk;
+
+    return;
+  }
+  if(pause == 'q') {
+    runner = false;
+    cout << "------------------Quiting the game------------------" << endl;
+    return;
+  }
+   
   for(int i=0; i < this->vamps.size(); i++) {
     int flag;
     flag = this->vamps[i].CheckInMap(map);
@@ -227,6 +304,35 @@ void Game::GameUpdater(Map& map) {
 
   }
 
+  for(int i=0; i < this->weres.size(); i++) {
+    int flag;
+    flag = this->weres[i].CheckInMap(map);
+    if(flag == 1) {
+      this->GameKiller(map,this->weres[i].get_x(),this->weres[i].get_y()-1);
+    }
+    else if(flag == 2) {
+      this->GameKiller(map,this->weres[i].get_x(),this->weres[i].get_y()+1);
+    }
+    else if(flag == 3) {
+      this->GameKiller(map,this->weres[i].get_x()-1,this->weres[i].get_y());
+    }
+    else if(flag == 4) {
+      this->GameKiller(map,this->weres[i].get_x()+1,this->weres[i].get_y());
+    }
+    else {
+      continue;
+    }
+
+  }
+
+  for(int i=0; i < this->vamps.size(); i++) {
+    cout << "Vampire's " << i << " health is :" << this->vamps[i].get_health() << endl;
+  }
+
+  for(int i=0; i < this->weres.size(); i++) {
+    cout << "Werewolf's " << i << " health is :" << this->weres[i].get_health() << endl;
+  }
+
   for(int i=0; i < this->vamps.size(); i++) {
     this->vamps[i].UpdatePosition(map,rand()%4);
   }
@@ -235,23 +341,47 @@ void Game::GameUpdater(Map& map) {
     this->weres[i].UpdatePosition(map,rand()%4);
   }
 
+  this->GameEnder(map);
 
 }
 
-void Game::GameKiller(Map& map, int a, int b){
+void Game::GameKiller(Map& map, int a, int b) {
   for(int i=0; i<vamps.size(); i++){
     if(this->vamps[i].get_x() == a && this->vamps[i].get_y() == b){
-      map.world[a][b] = TERRAIN_SYMBOL;
-      this->vamps.erase(this->vamps.begin());
-    }
-  }
-
-  for(int i=0; i < this->weres.size(); i++){
-    if(this->weres[i].get_x() == a){
-      if(this->weres[i].get_y() == b) {
+      
+      this->vamps[i].get_attacked(1);
+      cout << "Vampire Damaged " << endl;
+      
+      if(this->vamps[i].get_health() <= 0) {
         map.world[a][b] = TERRAIN_SYMBOL;
-        this->weres.erase(this->weres.begin()+i);
+        this->vamps.erase(this->vamps.begin()+i);
       }
     }
   }
+
+  for(int i=0; i < this->weres.size(); i++) {
+    if(this->weres[i].get_x() == a){
+      if(this->weres[i].get_y() == b) {
+        
+        this->weres[i].get_attacked(1);
+        cout << "Werewolf Damaged " << endl;
+
+        if(this->weres[i].get_health() <= 0) {
+          map.world[a][b] = TERRAIN_SYMBOL;
+          this->weres.erase(this->weres.begin()+i);
+        }
+      }
+    }
+  }
+}
+
+void Game::GameEnder(Map& map) {
+  if(this->weres.size() == 0) {
+    runner = false;
+    cout << "---------------VAMPIRES WON-------------" << endl;
+  }
+  else if(this->vamps.size() == 0) {
+    runner = false;
+    cout << "---------------WEREWOLVES WON-------------" << endl;
+  } 
 }

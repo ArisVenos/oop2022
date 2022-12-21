@@ -6,18 +6,19 @@
 
 using namespace std;
 
+bool runner = true;
+
 int main(){
   srand(time(0));
 
   Map map;
   Game game;
   
-  game.GameGenerator(map,5);
+  game.GameGenerator(map);
   
-  while(true) {
+  while(runner) {
     game.GameUpdater(map);
   }
-
 
   return 0;
   
