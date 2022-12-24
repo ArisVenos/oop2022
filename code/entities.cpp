@@ -9,21 +9,21 @@ const char TERRAIN_SYMBOL = ' ';
 const char WATER_SYMBOL = 'L';
 const char TREE_SYMBOL = 'T';
 const char EDGE_SYMBOL = '=';
+const char MAGIC_POTION_SYMBOL = 'M';
 
 // Define the probability of each element appearing in the world
 const float TERRAIN_PROBABILITY = 0.9;
 const float WATER_PROBABILITY = 0.05;
 const float TREE_PROBABILITY = 0.05;
-
 using namespace std;
 
+const int HEALTH = 6;
 
 void Entity::InitializeAbilities(){
-    
     healing = rand() % 3;
-    attack = rand() % 3 + 1;
+    attack =  rand() % 3 + 1;
     defence = rand() % 2 + 1;
-    health = 3;
+    health = HEALTH;
 }
 
 void Map::MapGenerator(Map& map){
@@ -37,7 +37,7 @@ void Map::MapPrinter(Map& map){
 void Map::GenerateMap(Map& map){
   unsigned short int X, Y;
   int size = 3;
-  cout <<  "Enter dimensions" <<endl;
+  cout <<  "Enter dimensions:" <<endl;
   cin >> X >> Y;
   // Resize the vector to have the desired number of rows
   map.world.resize(X);
@@ -124,6 +124,38 @@ void Entity::UpdatePosition(Map& map,int pos) {
       this->y = this->y + 1;
     }
   }
+  else if(pos == 4){
+    if(map.world[x-1][y-1] == TERRAIN_SYMBOL){
+      map.world[x-1][y-1] = get_symbol();
+      map.world[x][y] = TERRAIN_SYMBOL;
+      this->x = this->x - 1;
+      this->y = this->y - 1;
+    }
+  }
+  else if(pos == 5){
+    if(map.world[x+1][y+1] == TERRAIN_SYMBOL){
+      map.world[x+1][y+1] = get_symbol();
+      map.world[x][y] = TERRAIN_SYMBOL;
+      this->x = this->x + 1;
+      this->y = this->y + 1;
+    }
+  }
+  else if(pos == 6){
+    if(map.world[x+1][y-1] == TERRAIN_SYMBOL){
+      map.world[x+1][y-1] = get_symbol();
+      map.world[x][y] = TERRAIN_SYMBOL;
+      this->x = this->x + 1;
+      this->y = this->y - 1;
+    }
+  }
+  else if(pos == 7){
+    if(map.world[x-1][y+1] == TERRAIN_SYMBOL){
+      map.world[x-1][y+1] = get_symbol();
+      map.world[x][y] = TERRAIN_SYMBOL;
+      this->x = this->x - 1;
+      this->y = this->y + 1;
+    }
+  }
 }
 
 void Entity::SpawnInPosition(Map& map) {
@@ -180,6 +212,42 @@ int Werewolf::CheckInMap(Map& map) {
   }
 }
 
+int Entity::CheckInMapAly(Map& map) {
+  if(map.world[x][y-1] == 'V'){
+    return 1;
+  }
+  else if(map.world[x][y+1] == 'V'){
+    return 2;
+  }
+  else if(map.world[x-1][y] == 'V'){
+    return 3;
+  }
+  else if(map.world[x+1][y] == 'V'){
+    return 4;
+  }
+  else {
+    return 0;
+  }
+}
+
+int Werewolf::CheckInMapAly(Map& map) {
+  if(map.world[this->get_x()][this->get_y()-1] == 'W'){
+    return 1;
+  }
+  else if(map.world[this->get_x()][get_y()+1] == 'W'){
+    return 2;
+  }
+  else if(map.world[this->get_x()-1][get_y()] == 'W'){
+    return 3;
+  }
+  else if(map.world[this->get_x()+1][get_y()] == 'W'){
+    return 4;
+  }
+  else {
+    return 0;
+  }
+}
+
 char Avatar::AvatarMove(Map& map) {
   char input;
   
@@ -209,10 +277,35 @@ char Avatar::AvatarMove(Map& map) {
   else if(input == 'q') {
     return 'q';
   }
+  else if(input == 'h') {
+    return 'h';
+  }
   else {
-    cout << "wrong input,use w a s d\n"<< endl;
+    cout << "wrong input,use w a s d p q h\n"<< endl;
     return AvatarMove(map);
   }
+}
+
+void Avatar::TeamSelector() {
+  char a;
+  cout << "Please select team : w for werewolves or v for vampires " << endl;
+  cin >> a;
+  if(a == 'w') {
+    cout << "You chose werewolves" << endl;
+    this->team = a;
+    return;
+  }
+  else if(a == 'v') {
+    cout << "You chose vampires" << endl;
+    this->team = a;
+    return;
+  }
+  else {
+    cout << "Wrong selection, please type w or v" << endl;
+    this->TeamSelector();
+    return;
+  }
+
 }
 
 void Game::GameGenerator(Map& map) {
@@ -222,7 +315,7 @@ void Game::GameGenerator(Map& map) {
 
   size = (map.world.size()*map.world.size()) / 15;
 
-  cout << "Size is: " << size << endl;
+  cout << "Teams size: " << size << endl;
 
   this->vamps.resize(size);
   this->weres.resize(size);
@@ -241,6 +334,8 @@ void Game::GameGenerator(Map& map) {
 
     this->weres[i].InitializeAbilities();
   }
+
+  this->av.TeamSelector();
 }
 
 void Game::GameUpdater(Map& map) {
@@ -258,13 +353,18 @@ void Game::GameUpdater(Map& map) {
       this->counter = 0;
     }
   }
-  
+
+
+  //DAY EPOULONEI VAMPIRES - NIGHT EPOULONEI WEREWOLFS
+  //entometaxu ta vampires to vradu xupnane alla o diogenhs den exei vampire diaries XD
   if(this->time == false){
     cout << "------------------Day------------------" << endl;
   }
   else {
-    cout << "------------------Night------------------" << endl;
-  }
+      cout << "------------------Night------------------" << endl;
+    }
+
+
   map.MapPrinter(map);
   pause = av.AvatarMove(map);
 
@@ -272,7 +372,9 @@ void Game::GameUpdater(Map& map) {
     cout << "------------------Paused the game------------------" << endl;
     cout << "Vampires left: " << this->vamps.size() << endl;
     cout << "Werewolves left: " << this->weres.size() << endl;
+    cout << "Potions left: " << this->av.get_healing() << endl;
     cout << "Press anything to continue" << endl;
+    counter--;
     cin >> junk;
 
     return;
@@ -282,59 +384,147 @@ void Game::GameUpdater(Map& map) {
     cout << "------------------Quiting the game------------------" << endl;
     return;
   }
+  if(pause == 'h') {
+    if(this->time == true) {
+      if(av.get_healing() > 0) {
+        if(av.team == 'w') {
+          for(int i=0; i < this->weres.size(); i++) {
+            this->weres[i].get_healed();
+          }
+          av.ReduceHealing();
+        }
+        else {
+          for(int i=0; i < this->vamps.size(); i++) {
+            this->vamps[i].get_healed();
+          }
+          av.ReduceHealing();
+        }
+      }
+      else {
+        cout << "You have no potions" << endl;
+        counter--;
+        return;
+      }
+    }
+    else {
+      cout << "Its day time, you cant heal" << endl;
+      counter--;
+      return;
+    }
+  }
    
   for(int i=0; i < this->vamps.size(); i++) {
     int flag;
     flag = this->vamps[i].CheckInMap(map);
     if(flag == 1) {
-      this->GameKiller(map,this->vamps[i].get_x(),this->vamps[i].get_y()-1);
+      this->GameKiller(map,this->vamps[i].get_x(),this->vamps[i].get_y()-1, this->vamps[i].get_attack());
     }
     else if(flag == 2) {
-      this->GameKiller(map,this->vamps[i].get_x(),this->vamps[i].get_y()+1);
+      this->GameKiller(map,this->vamps[i].get_x(),this->vamps[i].get_y()+1, this->vamps[i].get_attack());
     }
     else if(flag == 3) {
-      this->GameKiller(map,this->vamps[i].get_x()-1,this->vamps[i].get_y());
+      this->GameKiller(map,this->vamps[i].get_x()-1,this->vamps[i].get_y(), this->vamps[i].get_attack());
     }
     else if(flag == 4) {
-      this->GameKiller(map,this->vamps[i].get_x()+1,this->vamps[i].get_y());
+      this->GameKiller(map,this->vamps[i].get_x()+1,this->vamps[i].get_y(), this->vamps[i].get_attack());
     }
     else {
       continue;
     }
+  }
 
+  //Edo healaroun ta weres
+  for(int i=0; i < this->weres.size(); i++) {
+    int flag;
+    flag = this->weres[i].CheckInMapAly(map);
+    if(this->weres[i].get_healing() > 0){
+      if(flag == 1) {
+        if(this->GameHealer(map,this->weres[i].get_x(),this->weres[i].get_y()-1) == 1){
+          this->weres[i].ReduceHealing();
+        }
+      }
+      else if(flag == 2) {
+        if(this->GameHealer(map,this->weres[i].get_x(),this->weres[i].get_y()+1) == 1){
+          this->weres[i].ReduceHealing();
+        }
+      }
+      else if(flag == 3) {
+        if(this->GameHealer(map,this->weres[i].get_x()-1,this->weres[i].get_y()) == 1){
+          this->weres[i].ReduceHealing();
+        }
+      }
+      else if(flag == 4) {
+       if(this->GameHealer(map,this->weres[i].get_x()+1,this->weres[i].get_y()) == 1){
+          this->weres[i].ReduceHealing();
+        }
+      }
+      else {
+        continue;
+      }
+    }
   }
 
   for(int i=0; i < this->weres.size(); i++) {
     int flag;
     flag = this->weres[i].CheckInMap(map);
     if(flag == 1) {
-      this->GameKiller(map,this->weres[i].get_x(),this->weres[i].get_y()-1);
+      this->GameKiller(map,this->weres[i].get_x(),this->weres[i].get_y()-1, this->weres[i].get_attack());
     }
     else if(flag == 2) {
-      this->GameKiller(map,this->weres[i].get_x(),this->weres[i].get_y()+1);
+      this->GameKiller(map,this->weres[i].get_x(),this->weres[i].get_y()+1, this->weres[i].get_attack());
     }
     else if(flag == 3) {
-      this->GameKiller(map,this->weres[i].get_x()-1,this->weres[i].get_y());
+      this->GameKiller(map,this->weres[i].get_x()-1,this->weres[i].get_y(), this->weres[i].get_attack());
     }
     else if(flag == 4) {
-      this->GameKiller(map,this->weres[i].get_x()+1,this->weres[i].get_y());
+      this->GameKiller(map,this->weres[i].get_x()+1,this->weres[i].get_y(), this->weres[i].get_attack());
     }
     else {
       continue;
     }
-
   }
 
   for(int i=0; i < this->vamps.size(); i++) {
-    cout << "Vampire's " << i << " health is :" << this->vamps[i].get_health() << endl;
+    int flag;
+    flag = this->vamps[i].CheckInMapAly(map);
+    if(this->vamps[i].get_healing() > 0){
+      if(flag == 1) {
+        if(this->GameHealer(map,this->vamps[i].get_x(),this->vamps[i].get_y()-1) == 1){
+          this->vamps[i].ReduceHealing();
+        }
+      }
+      else if(flag == 2) {
+        if(this->GameHealer(map,this->vamps[i].get_x(),this->vamps[i].get_y()+1) == 1){
+          this->vamps[i].ReduceHealing();
+        }
+      }
+      else if(flag == 3) {
+        if(this->GameHealer(map,this->vamps[i].get_x()-1,this->vamps[i].get_y()) == 1){
+          this->vamps[i].ReduceHealing();
+        }
+      }
+      else if(flag == 4) {
+       if(this->GameHealer(map,this->vamps[i].get_x()+1,this->vamps[i].get_y()) == 1){
+          this->vamps[i].ReduceHealing();
+        }
+      }
+      else {
+        continue;
+      }
+    }
+  }
+
+
+  for(int i=0; i < this->vamps.size(); i++) {
+    cout << "Vampire " << i << " health is :" << this->vamps[i].get_health() << endl;
   }
 
   for(int i=0; i < this->weres.size(); i++) {
-    cout << "Werewolf's " << i << " health is :" << this->weres[i].get_health() << endl;
+    cout << "Werewolf " << i << " health is :" << this->weres[i].get_health() << endl;
   }
 
   for(int i=0; i < this->vamps.size(); i++) {
-    this->vamps[i].UpdatePosition(map,rand()%4);
+    this->vamps[i].UpdatePosition(map,rand()%8);
   }
 
   for(int i=0; i < this->weres.size(); i++) {
@@ -345,14 +535,14 @@ void Game::GameUpdater(Map& map) {
 
 }
 
-void Game::GameKiller(Map& map, int a, int b) {
+void Game::GameKiller(Map& map, int a, int b, int c) {
   for(int i=0; i<vamps.size(); i++){
     if(this->vamps[i].get_x() == a && this->vamps[i].get_y() == b){
-      
-      this->vamps[i].get_attacked(1);
-      cout << "Vampire Damaged " << endl;
-      
-      if(this->vamps[i].get_health() <= 0) {
+      if(this->vamps[i].get_attack() <= c){
+        this->vamps[i].get_attacked(c, this->vamps[i].get_defence());
+        cout << "Vampire "<< i << " got damaged" << endl;
+      }
+      if(this->vamps[i].get_health() <= 0 || this->vamps[i].get_health() > 50) {
         map.world[a][b] = TERRAIN_SYMBOL;
         this->vamps.erase(this->vamps.begin()+i);
       }
@@ -360,19 +550,46 @@ void Game::GameKiller(Map& map, int a, int b) {
   }
 
   for(int i=0; i < this->weres.size(); i++) {
-    if(this->weres[i].get_x() == a){
-      if(this->weres[i].get_y() == b) {
-        
-        this->weres[i].get_attacked(1);
-        cout << "Werewolf Damaged " << endl;
+    if(this->weres[i].get_x() == a && this->weres[i].get_y() == b){
+      if(this->weres[i].get_attack() <= c){
+        this->weres[i].get_attacked(c, this->weres[i].get_defence());
+        cout << "Werewolf "<< i << " got damaged" << endl;
+      }
+      if(this->weres[i].get_health() <= 0 || this->weres[i].get_health() > 50) {
+        map.world[a][b] = TERRAIN_SYMBOL;
+        this->weres.erase(this->weres.begin()+i);
+      }
+    }  
+  }
+}
 
-        if(this->weres[i].get_health() <= 0) {
-          map.world[a][b] = TERRAIN_SYMBOL;
-          this->weres.erase(this->weres.begin()+i);
+int Game::GameHealer(Map& map, int a, int b) {
+  for(int i=0; i < vamps.size(); i++){
+    if(this->vamps[i].get_x() == a && this->vamps[i].get_y() == b){
+      if(this->vamps[i].get_health() < HEALTH){
+        if(rand() % 2 == 0){
+          this->vamps[i].get_healed();
+          cout << "Vampire "<< i << " got healed " << endl;
+          return 1;
         }
       }
+      return 0;
     }
   }
+
+   for(int i=0; i < weres.size(); i++){
+    if(this->weres[i].get_x() == a && this->weres[i].get_y() == b){
+      if(this->weres[i].get_health() < HEALTH){
+        if(rand() % 2 == 0){
+          this->weres[i].get_healed();
+          cout << "Werewolf " << i << " got healed " << endl;
+          return 1;
+        }
+      }
+      return 0;
+    }
+  }
+  return 0;
 }
 
 void Game::GameEnder(Map& map) {
