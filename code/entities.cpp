@@ -3,51 +3,47 @@
 #include <vector>
 #include "entities.h"
 
-//vector<vector<char>> world(10, vector<char>(10));
-// Define the symbols used to represent different elements in the world
+// SYMBOLS GIA MAP
 const char TERRAIN_SYMBOL = ' ';
 const char WATER_SYMBOL = 'L';
 const char TREE_SYMBOL = 'T';
 const char EDGE_SYMBOL = '=';
 const char MAGIC_POTION_SYMBOL = 'M';
 
-// Define the probability of each element appearing in the world
+// PROBABILITIES GIA TO MAP -- LIMNES DENTRA 
 const float TERRAIN_PROBABILITY = 0.9;
 const float WATER_PROBABILITY = 0.05;
 const float TREE_PROBABILITY = 0.05;
 using namespace std;
 
-const int HEALTH = 6;
+const int HEALTH = 6; //HEALTH POU KSEKINANE TA ENTITIES
 
-void Entity::InitializeAbilities(){
+void Entity::InitializeAbilities(){ //PAIRNOUN TIMES TA ENTITIES
     healing = rand() % 3;
     attack =  rand() % 3 + 1;
     defence = rand() % 2 + 1;
     health = HEALTH;
 }
 
-void Map::MapGenerator(Map& map){
+void Map::MapGenerator(Map& map){ //FUNCTION GIA THN DHMIOURGIA TOU MAP
     GenerateMap(map);
 }
 
-void Map::MapPrinter(Map& map){
+void Map::MapPrinter(Map& map){  //FUNCTION GIA TO PRINT TOU MAP
    PrintMap(map);
 }
 
 void Map::GenerateMap(Map& map){
   unsigned short int X, Y;
-  int size = 3;
   cout <<  "Enter dimensions:" <<endl;
-  cin >> X >> Y;
-  // Resize the vector to have the desired number of rows
+  cin >> X >> Y;    //DIASTASEIS TOU MAP
+  
   map.world.resize(X);
 
-  // Loop through each row of the vector and resize it to have the desired number of columns
   for (int i = 0; i < X; i++)
   {
     map.world[i].resize(Y);
   }
-  // Initialize the world with terrain, water, and trees according to their probabilities
   for (int i = 0; i < X; i++)
   {
     for (int j = 0; j < Y; j++)
@@ -69,7 +65,7 @@ void Map::GenerateMap(Map& map){
     }
   }
 
-  for(int i = 0; i < X; i++) {
+  for(int i = 0; i < X; i++) {    //AKRES TOU MAP
     map.world[i][0] = EDGE_SYMBOL;
   }
   for(int i = 0; i < X; i++) {
@@ -80,6 +76,18 @@ void Map::GenerateMap(Map& map){
   }
   for(int i = 0; i < X; i++) {
     map.world[Y-1][i] = EDGE_SYMBOL;
+  }
+
+  bool potplace = true;
+  
+
+  while(potplace) {   //WHILE MEXRI NA VREI TERRAIN GIA NA VALEI TO POTION
+    int randx = rand() % (X - 1);
+    int randy = rand() % (Y - 1);
+    if(map.world[randx][randy] == TERRAIN_SYMBOL) {
+      map.world[randx][randy] = MAGIC_POTION_SYMBOL;
+      potplace = false;
+    }
   }
 
 }
@@ -95,19 +103,34 @@ void Map::PrintMap(Map& map) const{
   }
 
 }
-void Entity::UpdatePosition(Map& map,int pos) {
+
+void Entity::UpdatePosition(Map& map,int pos) { //ANALOGA ME TO ORISMA POS KINEITAI ANALOGA-- 
   if(pos == 0) {
     if(map.world[x-1][y] == TERRAIN_SYMBOL){
       map.world[x-1][y] = get_symbol();
       map.world[x][y] = TERRAIN_SYMBOL;
       this->x = this->x - 1;
     }
+    else if((map.world[x-1][y] == MAGIC_POTION_SYMBOL) && (get_symbol() == 'A')){  //KSEXWRISTH PERIPTWSH GIA AVATAR KAI POTION
+      map.world[x-1][y] = get_symbol();
+      map.world[x][y] = TERRAIN_SYMBOL;
+      this->x = this->x - 1;
+      this->healing++;
+      cout << "You got a potion" << endl;
+    }
   }
   else if(pos == 1) {
     if(map.world[x+1][y] == TERRAIN_SYMBOL){
+      map.world[x+1][y] = get_symbol(); 
+      map.world[x][y] = TERRAIN_SYMBOL;
+      this->x = this->x + 1;
+    }
+    else if((map.world[x+1][y] == MAGIC_POTION_SYMBOL) && (get_symbol() == 'A')){
       map.world[x+1][y] = get_symbol();
       map.world[x][y] = TERRAIN_SYMBOL;
       this->x = this->x + 1;
+      this->healing++;
+      cout << "You got a potion" << endl;
     }
   }
   else if(pos == 2) {
@@ -116,12 +139,26 @@ void Entity::UpdatePosition(Map& map,int pos) {
       map.world[x][y] = TERRAIN_SYMBOL;
       this->y = this->y - 1;
     }
+    else if((map.world[x][y-1] == MAGIC_POTION_SYMBOL) && (get_symbol() == 'A')){
+      map.world[x][y-1] = get_symbol();
+      map.world[x][y] = TERRAIN_SYMBOL;
+      this->y = this->y - 1;
+      this->healing++;
+      cout << "You got a potion" << endl;
+    }
   }
   else if(pos == 3){
     if(map.world[x][y+1] == TERRAIN_SYMBOL){
       map.world[x][y+1] = get_symbol();
       map.world[x][y] = TERRAIN_SYMBOL;
       this->y = this->y + 1;
+    }
+    else if((map.world[x][y+1] == MAGIC_POTION_SYMBOL) && (get_symbol() == 'A')){
+      map.world[x][y+1] = get_symbol();
+      map.world[x][y] = TERRAIN_SYMBOL;
+      this->y = this->y + 1;
+      this->healing++;
+      cout << "You got a potion" << endl;
     }
   }
   else if(pos == 4){
@@ -158,7 +195,7 @@ void Entity::UpdatePosition(Map& map,int pos) {
   }
 }
 
-void Entity::SpawnInPosition(Map& map) {
+void Entity::SpawnInPosition(Map& map) {    //TOPOTHETISH TWN ENTITY TYXAIA STO MAP
   bool flag = true;
 
   while(flag) {
@@ -176,7 +213,7 @@ void Entity::SpawnInMap(Map& map) {
   SpawnInPosition(map);
 }
 
-int Entity::CheckInMap(Map& map) {
+int Entity::CheckInMap(Map& map) {    //SYNARTHSH GIA VAMPIRE POU PSAXNEI GYRW TOU GIA NA VREI WERE
   if(map.world[x][y-1] == 'W'){
     return 1;
   }
@@ -195,7 +232,7 @@ int Entity::CheckInMap(Map& map) {
 }
 
 int Werewolf::CheckInMap(Map& map) {
-  if(map.world[this->get_x()][this->get_y()-1] == 'V'){
+  if(map.world[this->get_x()][this->get_y()-1] == 'V'){  //SYNARTHSH GIA WERES GIA NA VROUN VAMPIRE
     return 1;
   }
   else if(map.world[this->get_x()][get_y()+1] == 'V'){
@@ -212,7 +249,7 @@ int Werewolf::CheckInMap(Map& map) {
   }
 }
 
-int Entity::CheckInMapAly(Map& map) {
+int Entity::CheckInMapAly(Map& map) {   //VAMPIRE PSAXNEI ALLA VAMPIRE NA HEALAREI
   if(map.world[x][y-1] == 'V'){
     return 1;
   }
@@ -230,7 +267,7 @@ int Entity::CheckInMapAly(Map& map) {
   }
 }
 
-int Werewolf::CheckInMapAly(Map& map) {
+int Werewolf::CheckInMapAly(Map& map) {   //WEREWOLF PSAXNEI WEREWOLF GIA HEAL
   if(map.world[this->get_x()][this->get_y()-1] == 'W'){
     return 1;
   }
@@ -248,7 +285,7 @@ int Werewolf::CheckInMapAly(Map& map) {
   }
 }
 
-char Avatar::AvatarMove(Map& map) {
+char Avatar::AvatarMove(Map& map) {     //FUNCTION GIA THN KINHSH TOU AVATAR --
   char input;
   
   cout << "enter direction: ";
@@ -540,7 +577,7 @@ void Game::GameKiller(Map& map, int a, int b, int c) {
     if(this->vamps[i].get_x() == a && this->vamps[i].get_y() == b){
       if(this->vamps[i].get_attack() <= c){
         this->vamps[i].get_attacked(c, this->vamps[i].get_defence());
-        cout << "Vampire "<< i << " got damaged" << endl;
+        cout << "Vampire "<< i << " got attacked" << endl;
       }
       if(this->vamps[i].get_health() <= 0 || this->vamps[i].get_health() > 50) {
         map.world[a][b] = TERRAIN_SYMBOL;
@@ -553,7 +590,7 @@ void Game::GameKiller(Map& map, int a, int b, int c) {
     if(this->weres[i].get_x() == a && this->weres[i].get_y() == b){
       if(this->weres[i].get_attack() <= c){
         this->weres[i].get_attacked(c, this->weres[i].get_defence());
-        cout << "Werewolf "<< i << " got damaged" << endl;
+        cout << "Werewolf "<< i << " got attacked" << endl;
       }
       if(this->weres[i].get_health() <= 0 || this->weres[i].get_health() > 50) {
         map.world[a][b] = TERRAIN_SYMBOL;
