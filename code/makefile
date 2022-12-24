@@ -1,11 +1,3 @@
-# Department of Informatics & Telecommunications, University of Athens, 2011-2012
-
-# Lesson  : Object-Oriented Programming                             (Semister 3d)
-# Exercise: 4th - Project
-# Author  : Alertas Spyros              std09218              R.N.: 1115200900218
-
-# File: makefile                                        Last Modified: 18/03/2012
-
 # Set the Compiler (C++)
 COMP = g++
 
