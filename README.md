@@ -1,7 +1,1 @@
-# oop2022
-oop assignment 
-
-Α ΜΕΛΟΣ:
-ΑΡΙΣΤΟΤΕΛΗΣ ΒΕΝΕΤΟΠΟΥΛΟΣ | 1115202000266 | sdi2000266@di.uoa.gr | 3o ετος
-Β ΜΕΛΟΣ:
-ΔΗΜΗΤΡΗΣ ΛΥΚΟΥΡΓΙΩΤΗΣ | 1115202000257 | sdi2000257@di.uoa.gr | 3o ετος
+Game-Project developed for object-oriented programming during my second year of studying at the National and Kapodistrian University of Athens. Development reports and descriptions are included.
